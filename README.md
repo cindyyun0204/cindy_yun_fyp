@@ -49,10 +49,12 @@ Mic → WhisperX → ASR Text
          Emotion JSON Response
                 ↓
             CSV Logging
-
+            
 ## Unity Components Breakdown
+All C# scripts are in Assets -> Scripts except for FaceLandmarkerRunner.cs, which is in Assets -> MediaPipeUnity -> Samples -> Scenes -> FaceLandmarkDetection
+
 ### FaceLandmarkerRunner
-Uses MediaPipe FaceLandmarker (468-point mesh)
+Uses MediaPipe FaceLandmarker (468-point mesh). Added features to the existing script.
 
 Responsibilities:
 - Detect face landmarks
@@ -209,7 +211,152 @@ Model is used in true multimodal mode:
 
 More simplified version is printed out on Unity logs (emotion and confidence)
 
+## Scene Architecture
+The main demo scene (main) is structured into modular systems:
+- Main Canvas
+- Solution
+- WhisperXClient
+- FaceLog
+- EmotionSystem
+
+Default Unity objects (Main Camera, Direction Light, EventSystem) are not part of the emotion pipeline.
+
+### Solution (FaceLandmarker Runner)
+Component: FaceLandmarkerRunner
+This object runs MediaPipe Face Landmarker and acts as the primary visual + capture pipeline.
+
+#### Responsibilities:
+- Runs MediaPipe Face Landmarker (Async mode)
+- Draws face landmark annotations
+- Logs 468 landmarks to JSONL
+- Extracts face features
+- Feeds EmotionWindowAggregator
+- Crops face image and sends it to EmotionClient
+
+#### Key Settings:
+- Capture Hz: 0.333 (i.e. every 3 seconds)
+- Crop Padding: 0.15
+- JPEG Quality: 80
+- Flip Output Vertically: enabled
+- Face Crop: enabled
+
+This object is the vision entry point of the system
+
+### WhisperXClient
+Component: WhisperXClient
+Handes real-time microphone recording and speech transcription
+
+#### Responsibilities:
+- Records 3-second audio chunks
+- Sends audio to:
+  http://127.0.0.1:8000/transcribe
+- Updates on-screen transcript
+- Pushes ASR text into EmotionClient
+- Triggers EmotionWindowAggregator on new speech
+- Logs transcripts to transcripts.jsonl
+
+#### Key Settings:
+- Sample Rate: 16000
+- Record Seconds: 3
+- Transcript Logging: enabled
+
+This object is the audio entry point of the system.
+
+### FaceLog
+Component: FaceLandmarksJsonlLogger
+Logs raw 468 MediaPipe landmarks.
+
+#### Output
+Logs/face_landmarks_468.jsonl
+
+Each frame includes:
+- UTC timestamp
+- Unity time
+- Face index
+- Full landmark array
+
+This is used for:
+- Dataset generation
+- Offline replay
+- Debugging
+- Feature validation
+
+Raw landmarks are not sent to the server. Instead, face features are (as described previously).
+
+### EmotionSystem
+This object contains:
+- LogTailerEmotionBridge
+- EmotionClient
+- EmotionWindowAggregator
+
+It is the core multimodal fusion system.
+
+#### LogTailerEmotionBridge
+Polls:
+- transcripts.jsonl
+- face_landmarks_468.jsonl
+
+Feeds parsed data into the aggregator.
+
+Poll interval: 0.2 seconds
+
+Allows:
+- Decoupled logging
+- Replay capability
+- File-driven integration
+
+#### EmotionClient
+Sends fused data to backend:
+http://127.0.0.1:8000/emotion_from_logs
+
+Sends:
+- ASR text
+- Aggregated face features
+- Cropped face image (base64 JPEG)
+- Driving session flag
+
+Logs final result to:
+Logs/emotion_log.csv
+
+Key Settings:
+- Server Vision Side: 256
+- JPEG Quality: 70
+- Save Face Images: enabled
+- CSV Logging: enabled
+
+#### EmotionWindowAggregator
+Maintains sliding window of face features.
+
+Configuration:
+- Window: 6 seconds
+- Keep: 8 seconds
+- Blink threshold: 0.18
+- Send on Timer: enabled
+- Timer interval: 3 seconds
+- Send on ASR Chunk: enabled
+
+Prevents overlapping server requests and smooths predictions
+
+## How the Scene Works Together
+Webcam → Solution (FaceLandmarkerRunner)
+           ↓
+     468 landmarks
+           ↓
+   FaceLog (JSONL logging)
+           ↓
+   EmotionWindowAggregator
+           ↓
+Mic → WhisperXClient
+           ↓
+   EmotionClient
+           ↓
+FastAPI → Ollama (Qwen-VL)
+           ↓
+emotion_log.csv
+
 ## How to Run:
+Please run on a device that has a GPU. If not it would be too slow, and might return an error instead.
+
 ### 1. Backend
 Install dependencies (create a venv if needed):
 pip install fastapi uvicorn whisperx torch httpx numpy ffmpeg
