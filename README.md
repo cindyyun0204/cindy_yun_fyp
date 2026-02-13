@@ -137,12 +137,14 @@ All logs stored in:
 Check Unity logs if unsure about the path. Logs print out paths.
 
 Structure:
+```
 Logs/
   transcripts.jsonl
   face_landmarks_468.jsonl
   emotion_log.csv
   images/
       face_session_timestamp.jpg
+```
 
 ## Backend (server.py)
 Built with:
@@ -186,7 +188,7 @@ Environment variables:
 
 OLLAMA_CHAT_URL=```http://127.0.0.1:11434/api/chat```
 
-OLLAMA_MODEL=qwen2.5vl:latest
+OLLAMA_MODEL=```qwen2.5vl:latest```
 
 Model is used in true multimodal mode:
 - Text
@@ -350,7 +352,7 @@ Please run on a device that has a GPU. If not it would be too slow, and might re
 ### 1. Backend
 Install dependencies (create a venv if needed):
 
-pip install fastapi uvicorn whisperx torch httpx numpy ffmpeg
+```pip install fastapi uvicorn whisperx torch httpx numpy ffmpeg```
 - If whisperx install doesn't work, try older Python versions like 3.10
 - Install Ollama (https://ollama.com/download)
 
@@ -361,9 +363,9 @@ Start server:
 (or any address you want)
 
 Pull the model and ensure Ollama is running:
-- ollama pull qwen2.5vl:latest
+- ```ollama pull qwen2.5vl:latest```
   (about 6GB)
-- ollama run qwen2.5vl
+- ```ollama run qwen2.5vl```
 
 ### 2. Unity
 Requirements:
