@@ -356,7 +356,7 @@ Install dependencies (create a venv if needed):
 - If whisperx install doesn't work, try older Python versions like 3.10
 - Install Ollama (https://ollama.com/download)
 
-Start server:
+Start server (download the server.py file in this repository):
 
 ```uvicorn server:app --host 127.0.0.1 --port 8000```
 
