@@ -13,6 +13,7 @@ The system fuses:
 - Cropped face images
 - Speech transcription (ASR)
 - Numerical face features
+  
 and produces structured emotion outputs including:
 - Emotion label
 - Valence (-1 → 1)
@@ -93,7 +94,7 @@ Features:
 - ASR-triggered sending
 - Prevents overlapping requests
 
-This stabilises predictions
+This stabilises predictions.
 
 ### EmotionClient
 Responsible for:
@@ -135,6 +136,7 @@ Loop:
 Reads:
 - transcripts.jsonl
 - face_landmarks_468.jsonl
+  
 Pushes parsed data back into the aggregator
 
 This allows:
@@ -144,7 +146,8 @@ This allows:
 
 ### Logging System
 All logs stored in:
-Application.persistentDataPath/Logs
+```Application.persistentDataPath/Logs```
+
 Check Unity logs if unsure about the path. Logs print out paths.
 
 Structure:
@@ -163,21 +166,23 @@ Built with:
 
 ### /transcribe
 Uses WhisperX to produce:
-{
+
+```{
   "text": "...",
   "segments": [...]
-}
+}```
 
 ### /emotions_from_logs
 Accepts:
-{
+
+```{
   "session_id": "...",
   "t_utc": "...",
   "asr_text": "...",
   "face_features": { ... },
   "driving_session": true,
   "face_jpeg_b64": "..."
-}
+}```
 
 Then:
 1. Constructs multimodal prompt
@@ -188,7 +193,9 @@ Then:
 
 ### Ollama + Qwen2.5-VL
 Environment variables:
-OLLAMA_CHAT_URL=http://127.0.0.1:11434/api/chat
+
+OLLAMA_CHAT_URL=```http://127.0.0.1:11434/api/chat```
+
 OLLAMA_MODEL=qwen2.5vl:latest
 
 Model is used in true multimodal mode:
@@ -197,7 +204,7 @@ Model is used in true multimodal mode:
 - Face Image
 
 ## Emotion Output Format
-{
+```{
   "emotion": "happy",
   "valence": 0.62,
   "arousal": 0.71,
@@ -207,7 +214,7 @@ Model is used in true multimodal mode:
     "positive speech tone"
   ],
   "notes": "Driver appears engaged"
-}
+}```
 
 More simplified version is printed out on Unity logs (emotion and confidence)
 
@@ -223,6 +230,7 @@ Default Unity objects (Main Camera, Direction Light, EventSystem) are not part o
 
 ### Solution (FaceLandmarker Runner)
 Component: FaceLandmarkerRunner
+
 This object runs MediaPipe Face Landmarker and acts as the primary visual + capture pipeline.
 
 #### Responsibilities:
@@ -244,6 +252,7 @@ This object is the vision entry point of the system
 
 ### WhisperXClient
 Component: WhisperXClient
+
 Handes real-time microphone recording and speech transcription
 
 #### Responsibilities:
@@ -264,10 +273,11 @@ This object is the audio entry point of the system.
 
 ### FaceLog
 Component: FaceLandmarksJsonlLogger
+
 Logs raw 468 MediaPipe landmarks.
 
 #### Output
-Logs/face_landmarks_468.jsonl
+```Logs/face_landmarks_468.jsonl```
 
 Each frame includes:
 - UTC timestamp
@@ -307,7 +317,8 @@ Allows:
 
 #### EmotionClient
 Sends fused data to backend:
-http://127.0.0.1:8000/emotion_from_logs
+
+```http://127.0.0.1:8000/emotion_from_logs```
 
 Sends:
 - ASR text
@@ -316,7 +327,8 @@ Sends:
 - Driving session flag
 
 Logs final result to:
-Logs/emotion_log.csv
+
+```Logs/emotion_log.csv```
 
 Key Settings:
 - Server Vision Side: 256
@@ -359,12 +371,15 @@ Please run on a device that has a GPU. If not it would be too slow, and might re
 
 ### 1. Backend
 Install dependencies (create a venv if needed):
+
 pip install fastapi uvicorn whisperx torch httpx numpy ffmpeg
-  - If whisperx install doesn't work, try older Python versions like 3.10
+- If whisperx install doesn't work, try older Python versions like 3.10
 - Install Ollama (https://ollama.com/download)
 
 Start server:
-uvicorn server:app --host 127.0.0.1 --port 8000
+
+```uvicorn server:app --host 127.0.0.1 --port 8000```
+
 (or any address you want)
 
 Pull the model and ensure Ollama is running:
