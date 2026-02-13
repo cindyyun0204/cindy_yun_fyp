@@ -35,22 +35,8 @@ and produces structured emotion outputs including:
 - Ollama (Qwen2.5-VL)
 
 ## Full Data Flow
-Webcam → MediaPipe → 468 Landmarks
-                ↓
-         Feature Extraction
-                ↓
-         Window Aggregation
-                ↓
-Mic → WhisperX → ASR Text
-                ↓
-      EmotionClient → FastAPI
-                ↓
-         Ollama (Qwen-VL)
-                ↓
-         Emotion JSON Response
-                ↓
-            CSV Logging
-            
+<img width="4838" height="1034" alt="image" src="https://github.com/user-attachments/assets/07914a32-0f00-4b0a-a3bc-50ff5f11629f" />
+  
 ## Unity Components Breakdown
 All C# scripts are in Assets -> Scripts except for FaceLandmarkerRunner.cs, which is in Assets -> MediaPipeUnity -> Samples -> Scenes -> FaceLandmarkDetection
 
@@ -167,22 +153,26 @@ Built with:
 ### /transcribe
 Uses WhisperX to produce:
 
-```{
+```
+{
   "text": "...",
   "segments": [...]
-}```
+}
+```
 
 ### /emotions_from_logs
 Accepts:
 
-```{
+```
+{
   "session_id": "...",
   "t_utc": "...",
   "asr_text": "...",
   "face_features": { ... },
   "driving_session": true,
   "face_jpeg_b64": "..."
-}```
+}
+```
 
 Then:
 1. Constructs multimodal prompt
@@ -204,7 +194,8 @@ Model is used in true multimodal mode:
 - Face Image
 
 ## Emotion Output Format
-```{
+```
+{
   "emotion": "happy",
   "valence": 0.62,
   "arousal": 0.71,
@@ -214,7 +205,8 @@ Model is used in true multimodal mode:
     "positive speech tone"
   ],
   "notes": "Driver appears engaged"
-}```
+}
+```
 
 More simplified version is printed out on Unity logs (emotion and confidence)
 
@@ -350,21 +342,7 @@ Configuration:
 Prevents overlapping server requests and smooths predictions
 
 ## How the Scene Works Together
-Webcam → Solution (FaceLandmarkerRunner)
-           ↓
-     468 landmarks
-           ↓
-   FaceLog (JSONL logging)
-           ↓
-   EmotionWindowAggregator
-           ↓
-Mic → WhisperXClient
-           ↓
-   EmotionClient
-           ↓
-FastAPI → Ollama (Qwen-VL)
-           ↓
-emotion_log.csv
+<img width="4100" height="1044" alt="image" src="https://github.com/user-attachments/assets/e68ed985-806f-4740-9ef4-b757d7b33f98" />
 
 ## How to Run:
 Please run on a device that has a GPU. If not it would be too slow, and might return an error instead.
