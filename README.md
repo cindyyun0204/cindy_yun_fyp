@@ -350,10 +350,10 @@ Prevents overlapping server requests and smooths predictions
 Please run on a device that has a GPU. If not it would be too slow, and might return an error instead.
 
 ### 1. Backend
-Install dependencies (create a venv if needed):
+Install dependencies (create a venv with Python 3.10):
 
 ```pip install fastapi uvicorn whisperx torch httpx numpy ffmpeg```
-- If whisperx install doesn't work, try older Python versions like 3.10
+- If whisperx install doesn't work, it is because of the Python version. Try older Python versions like 3.10
 - Install Ollama (https://ollama.com/download)
 
 Start server (download the server.py file in this repository):
