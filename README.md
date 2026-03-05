@@ -16,8 +16,8 @@ The system fuses:
   
 and produces structured emotion outputs including:
 - Emotion label
-- Valence
-- Arousal
+- Valence (-1 to 1, float)
+- Arousal (0 to 1, float)
 - Confidence
 - Signals & reasoning
 
