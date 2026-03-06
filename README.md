@@ -352,7 +352,11 @@ Please run on a device that has a GPU. If not it would be too slow, and might re
 ### 1. Backend
 Install dependencies (create a venv with Python 3.10):
 
-```pip install fastapi uvicorn whisperx torch httpx numpy ffmpeg```
+```
+py -3.10 -m venv venv
+venv\Scripts\activate
+pip install fastapi uvicorn whisperx torch httpx numpy ffmpeg
+```
 - If whisperx install doesn't work, it is because of the Python version. Try older Python versions like 3.10
 - Install Ollama (https://ollama.com/download)
 
