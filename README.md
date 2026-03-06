@@ -380,7 +380,7 @@ Requirements:
 - Newtonsoft JSON
 
 Steps:
-1. Add the Unity package (emotion_response.unitypackage) to the project
+1. Add the Unity package (emotion_response.unitypackage) to the project - to be updated. to run with driving simulator, run two scenes separately
    - Open Unity project
    - Go to Assets -> Import Package -> Custom Package
    - Select the .unitypackage file
