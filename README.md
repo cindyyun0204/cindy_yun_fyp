@@ -18,6 +18,7 @@ and produces structured emotion outputs including:
 - Emotion label
 - Valence (-1 to 1, float)
 - Arousal (0 to 1, float)
+  (Based on Russell's Valence Arousal Model: https://blog.biopac.com/circumplex-model-affect-motivational-state/)
 - Confidence
 - Signals & reasoning
 
