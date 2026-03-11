@@ -33,7 +33,7 @@ and produces structured emotion outputs including:
 ### Backend (server.py)
 - FastAPI
 - WhisperX
-- Ollama (Qwen2.5-VL)
+- Ollama (Qwen2.5-VL) -> Faster than other models
 
 ## Full Data Flow
 <img width="4838" height="1034" alt="image" src="https://github.com/user-attachments/assets/07914a32-0f00-4b0a-a3bc-50ff5f11629f" />
