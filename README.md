@@ -355,7 +355,6 @@ Install dependencies (create a venv with Python 3.10):
 
 Terminal 1 (MediaPipe Server):
 ```
-cd (path)
 py -3.10 -m venv venv
 venv\Scripts\activate
 pip install mediapipe fastapi uvicorn opencv-python numpy
@@ -364,7 +363,6 @@ uvicorn mediapipe_service:app --host 127.0.0.1 --port 8010
 
 Terminal 2 (FastAPI server - Qwen, WhisperX):
 ```
-cd(path)
 venv\Scripts\activate
 pip install fastapi uvicorn whisperx torch httpx numpy ffmpeg
 uvicorn server:app --host 127.0.0.1 --port 8000
