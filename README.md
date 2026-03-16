@@ -353,7 +353,7 @@ Please run on a device that has a GPU. If not it would be too slow, and might re
 ### 1. Backend
 Install dependencies (create a venv with Python 3.10):
 
-Terminal 1:
+Terminal 1 (MediaPipe Server):
 ```
 cd (path)
 py -3.10 -m venv venv
@@ -362,7 +362,7 @@ pip install mediapipe fastapi uvicorn opencv-python numpy
 uvicorn mediapipe_service:app --host 127.0.0.1 --port 8010
 ```
 
-Terminal 2:
+Terminal 2 (FastAPI server - Qwen, WhisperX):
 ```
 cd(path)
 venv\Scripts\activate
@@ -382,7 +382,7 @@ ollama run qwen2.5vl
 Requirements:
 - Unity 2022+
   This project was developed using Unity 2022.3.62f3
-- MediaPipe Unity plugin
+- MediaPipe Unity plugin (homuler) -> MediaPipe official
 - TextMeshPro
 - Newtonsoft JSON
 
