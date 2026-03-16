@@ -353,24 +353,30 @@ Please run on a device that has a GPU. If not it would be too slow, and might re
 ### 1. Backend
 Install dependencies (create a venv with Python 3.10):
 
+Terminal 1:
 ```
+cd (path)
 py -3.10 -m venv venv
 venv\Scripts\activate
+pip install mediapipe fastapi uvicorn opencv-python numpy
+uvicorn mediapipe_service:app --host 127.0.0.1 --port 8010
+```
+
+Terminal 2:
+```
+cd(path)
+venv\Scripts\activate
 pip install fastapi uvicorn whisperx torch httpx numpy ffmpeg
+uvicorn server:app --host 127.0.0.1 --port 8000
+```
+
+Terminal 3:
+```
+ollama pull qwen2.5vl:latest
+ollama run qwen2.5vl
 ```
 - If whisperx install doesn't work, it is because of the Python version. Try older Python versions like 3.10
 - Install Ollama (https://ollama.com/download)
-
-Start server (download the server.py file in this repository):
-
-```uvicorn server:app --host 127.0.0.1 --port 8000```
-
-(or any address you want)
-
-Pull the model and ensure Ollama is running:
-- ```ollama pull qwen2.5vl:latest```
-  (about 6GB)
-- ```ollama run qwen2.5vl```
 
 ### 2. Unity
 Requirements:
