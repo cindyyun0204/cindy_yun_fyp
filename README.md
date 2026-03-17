@@ -370,8 +370,8 @@ uvicorn server:app --host 127.0.0.1 --port 8000
 
 Terminal 3:
 ```
-ollama pull qwen2.5vl:latest
-ollama run qwen2.5vl
+ollama pull qwen3.5:latest
+ollama run qwen3.5
 ```
 - If whisperx install doesn't work, it is because of the Python version. Try older Python versions like 3.10
 - Install Ollama (https://ollama.com/download)
