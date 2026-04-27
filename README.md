@@ -48,6 +48,7 @@ The Unity driving simulator project itself is not included. It was developed by 
 │   │   ├── FaceLandmarksJsonlLogger.cs
 │   │   ├── LogTailerEmotionBridge.cs
 │   │   ├── EmotionHUD.cs
+│   │   ├── LogPaths.cs
 │   │   └── CsvLog.cs
 │
 ├── driving-simulator/                  # C# scripts to add to the simulator
@@ -56,7 +57,6 @@ The Unity driving simulator project itself is not included. It was developed by 
 │       ├── EmotionBOBridge.cs
 │       ├── LoopForQT.cs
 │       ├── ConditionHooks_UPDATE.cs
-│       └── LogPaths.cs
 │
 └── README.md
 ```
