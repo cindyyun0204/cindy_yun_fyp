@@ -88,7 +88,7 @@ The system supports three feedback conditions, set via the **Condition ID** fiel
 | ID | Name | Behaviour |
 |----|------|-----------|
 | 1  | LLM-only | Per-iteration questionnaire is replaced by a 10-second processing pop-up. The LLM's ratings drive the BO. |
-| 2  | Questionnaire-only | Standard BOforUnity behaviour. The LLM still runs and is logged for offline analysis, but does not drive the BO. |
+| 2  | Questionnaire-only | Standard BOforUnity behaviour. The LLM still runs but does not capture anything (idle state). |
 | 3  | Combination | Both signals are collected. The BO objective values are a 50/50 blend of the LLM and questionnaire ratings. |
 
 The **Group ID** must be set to `RuralUrbanHighway` to reproduce the study setup. Only the rural and urban environments are used; the third (Highway) entry is vestigial code inherited from an earlier study and is never instantiated.
