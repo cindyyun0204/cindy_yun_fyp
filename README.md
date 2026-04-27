@@ -50,7 +50,7 @@ The Unity driving simulator project itself is not included. It was developed by 
 │   │   ├── EmotionHUD.cs
 │   │   └── CsvLog.cs
 │
-├── driving simulator/                  # C# scripts to add to the simulator
+├── driving-simulator/                  # C# scripts to add to the simulator
 │   └── Scripts/                # Hooks into the existing simulator
 │       ├── StudyConditionManager.cs
 │       ├── EmotionBOBridge.cs
