@@ -37,10 +37,7 @@ The Unity driving simulator project itself is not included. It was developed by 
 ├── emotion-server/                 # Python backend
 │   ├── server.py                   # Main FastAPI server (port 8000)
 │   ├── mediapipe_service.py        # MediaPipe FaceLandmarker service (port 8010)
-│   └── requirements.txt
-│
-├── unity-scripts/                  # C# scripts to add to the simulator
-│   ├── EmotionSystem/              # Self-contained emotion capture pipeline
+│   ├── Scripts   
 │   │   ├── OfficialMediaPipeRunner.cs
 │   │   ├── OfficialMediaPipeClient.cs
 │   │   ├── EmotionWindowAggregator.cs
@@ -52,8 +49,9 @@ The Unity driving simulator project itself is not included. It was developed by 
 │   │   ├── LogTailerEmotionBridge.cs
 │   │   ├── EmotionHUD.cs
 │   │   └── CsvLog.cs
-│   │
-│   └── Integration/                # Hooks into the existing simulator
+│
+├── driving simulator/                  # C# scripts to add to the simulator
+│   └── Scripts/                # Hooks into the existing simulator
 │       ├── StudyConditionManager.cs
 │       ├── EmotionBOBridge.cs
 │       ├── LoopForQT.cs
