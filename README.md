@@ -1,10 +1,8 @@
 # LLMs as Implicit Feedback for Bayesian Optimization in Personalized Automated Driving
 
-This repository contains the emotion recognition system developed for the dissertation *From Faces to Feedback: LLM-Based Implicit Evaluation for Driving Style Optimisation in Automated Vehicles* (Yun, 2026, UCL).
+This repository contains the emotion recognition system developed for the dissertation *From Faces to Feedback: LLM-Based Implicit Evaluation for Driving Style Optimisation in Automated Vehicles*.
 
 The system investigates whether a multimodal Large Language Model can replace or supplement explicit questionnaire feedback in human-in-the-loop multi-objective Bayesian optimisation (HITL MOBO) for automated vehicle driving style personalisation. It captures facial landmarks and blendshapes via MediaPipe, transcribes speech via WhisperX, and processes both modalities through Gemma 4 (via Ollama) to output the same safety, naturalness, and progress ratings as the questionnaire.
-
-The pipeline is integrated into a Unity-based HITL MOBO driving simulator that uses the BOforUnity framework. A within-subjects user study (N = 15) compared three feedback conditions: questionnaire-only, LLM-only, and a 50/50 combination, across rural and urban environments.
 
 ## What's included
 
@@ -50,18 +48,6 @@ The Unity driving simulator project itself is **not** included in this repositor
 ├── requirements.txt
 └── README.md
 ```
-
-## Conditions
-
-The system supports three feedback conditions (Section 3.2.1 of the dissertation), set via the **Condition ID** field on the simulator's start screen:
-
-| ID | Name | Behaviour |
-| --- | --- | --- |
-| 1 | LLM-only | Per-iteration questionnaire is replaced by a 10-second processing pop-up. The LLM's ratings drive the BO. |
-| 2 | Questionnaire-only | Standard BOforUnity behaviour. The LLM still runs but does not capture anything (idle state). |
-| 3 | Combination | Both signals are collected. The BO objective values are a 50/50 blend of the LLM and questionnaire ratings. |
-
-The **Group ID** must be set to `RuralUrbanHighway` to reproduce the study setup. Only the rural and urban environments are used; the third (Highway) entry is vestigial code inherited from an earlier study and is never instantiated.
 
 ## Per-iteration data flow
 
@@ -257,9 +243,3 @@ These directories contain webcam crops, transcripts, and other personally-identi
 - Audio and facial data are captured every 3 seconds during each 30-second segment, then sent to the server in bulk at the end of the iteration. Only one LLM assessment is produced per iteration.
 - Speech transcription operates on rolling 3-second audio chunks at 16 kHz mono.
 - The condition router (`StudyConditionManager.cs`) maps Condition IDs 1/2/3 to `llm_only`, `value_only`, and `combination` respectively, and is the single source of truth for which feedback channel is active.
-
-## Citation
-
-If you use this code or build on this work, please cite the dissertation:
-
-> Yun, C. (2026). *From Faces to Feedback: LLM-Based Implicit Evaluation for Driving Style Optimisation in Automated Vehicles.* BSc dissertation, University College London.
