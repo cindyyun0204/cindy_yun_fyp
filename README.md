@@ -4,7 +4,19 @@ This repository contains the emotion recognition system developed for the disser
 
 The system investigates whether a multimodal Large Language Model can replace or supplement explicit questionnaire feedback in human-in-the-loop multi-objective Bayesian optimisation (HITL MOBO) for automated vehicle driving style personalisation. It captures facial landmarks and blendshapes via MediaPipe, transcribes speech via WhisperX, and processes both modalities through Gemma 4 (via Ollama) to output the same safety, naturalness, and progress ratings as the questionnaire.
 
-## What's included
+## Quick start for the Unity side
+
+The Unity emotion capture project is provided as a pre-packaged
+`EmotionCapture_FYP.unitypackage` at the repository root. To set it up:
+
+1. Create a new Unity 2022.3 LTS project (3D template).
+2. `Assets` → `Import Package` → `Custom Package...` and select
+   `emotion_system.unitypackage`.
+3. When prompted, import all items.
+4. Open `Assets/Scenes/main.unity`.
+
+This avoids cloning a separate Unity project. The Python backend
+(`emotion-server/`) still needs to be set up separately as described below.
 
 This repository contains two parts:
 
