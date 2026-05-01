@@ -1,395 +1,265 @@
-# Driver emotion Recognition (Unity + WhisperX + Qwen)
+# LLMs as Implicit Feedback for Bayesian Optimization in Personalized Automated Driving
 
-## Summary
-A real-time multimodal emotion recognition system for driver monitoring built with:
-- Unity (C#)
-- MediaPipe Face Landmarker (468 landmarks)
-- WhisperX (speech-to-text)
-- Qwen2.5-VL via Ollama
-- FastAPI backend
+This repository contains the emotion recognition system developed for the dissertation *From Faces to Feedback: LLM-Based Implicit Evaluation for Driving Style Optimisation in Automated Vehicles* (Yun, 2026, UCL).
 
-The system fuses:
-- Facial geometry
-- Cropped face images
-- Speech transcription (ASR)
-- Numerical face features
-  
-and produces structured emotion outputs including:
-- Emotion label
-- Valence (-1 to 1, float)
-- Arousal (0 to 1, float)
-  (Based on Russell's Valence Arousal Model: https://blog.biopac.com/circumplex-model-affect-motivational-state/)
-- Confidence
-- Signals & reasoning
+The system investigates whether a multimodal Large Language Model can replace or supplement explicit questionnaire feedback in human-in-the-loop multi-objective Bayesian optimisation (HITL MOBO) for automated vehicle driving style personalisation. It captures facial landmarks and blendshapes via MediaPipe, transcribes speech via WhisperX, and processes both modalities through Gemma 4 (via Ollama) to output the same safety, naturalness, and progress ratings as the questionnaire.
 
-## System Overview
-### Unity Client (core components)
-- FaceLandmarkerRunner
-- EmotionWindowAggregator
-- EmotionClient
-- WhisperXClient
-- LogTailerEmotionBridge
-  
-### Backend (server.py)
-- FastAPI
-- WhisperX
-- Ollama (Qwen2.5-VL) -> Faster than other models
+The pipeline is integrated into a Unity-based HITL MOBO driving simulator that uses the BOforUnity framework. A within-subjects user study (N = 15) compared three feedback conditions: questionnaire-only, LLM-only, and a 50/50 combination, across rural and urban environments.
 
-## Full Data Flow
-<img width="4838" height="1034" alt="image" src="https://github.com/user-attachments/assets/07914a32-0f00-4b0a-a3bc-50ff5f11629f" />
-  
-## Unity Components Breakdown
-All C# scripts are in Assets -> Scripts except for FaceLandmarkerRunner.cs, which is in Assets -> MediaPipeUnity -> Samples -> Scenes -> FaceLandmarkDetection
+## What's included
 
-### FaceLandmarkerRunner
-Uses MediaPipe FaceLandmarker (468-point mesh). Added features to the existing script.
+This repository contains two parts:
 
-Responsibilities:
-- Detect face landmarks
-- Log raw 468 landmarks to JSONL
-- Extract geometric features
-- Crop face region from frame
-- Send cropped image to EmotionClient
+- **Python backend** (`emotion-server/`): the FastAPI server (`server.py`) and MediaPipe service (`mediapipe_service.py`) that run locally to receive sensor data, query Gemma 4 via Ollama, and return structured emotion ratings.
+- **Unity C# scripts**: the emotion capture client (`emotion-server/Scripts/`) and the BO-loop integration scripts (`driving-simulator/Scripts/`) that hook into the existing simulator.
 
-Uses:
-- FaceCropper
-- FaceFeatureExtractor
-- FaceLandmarksJsonlLogger
+The Unity driving simulator project itself is **not** included in this repository. It was developed by Pascal Jansen and Tim Eckstein at Ulm University; access should be requested from them. The scripts under `driving-simulator/Scripts/` are designed to be added into that simulator's `Assets/Scripts/` folder.
 
-### FaceFeatureExtractor
-Converts 468 landmarks into normalised features:
-- mouth_open
-- smile
-- brow_raise
-- brow_furrow
-- eye_open
-- head_yaw
-- head_pitch
-- head_roll
-- blink_rate_10s
-
-Pure geometery-based extraction.
-
-### EmotionWindowAggregator
-Maintains sliding window buffer
-On code, default is 9 seconds but can be modified using the Unity object 'EmotionSystem''s 'Emotion Window Aggregator' component. Currently set as 6 seconds
-
-Features:
-- Time-window averaging
-- Blink detection
-- Time-based sending
-- ASR-triggered sending
-- Prevents overlapping requests
-
-This stabilises predictions.
-
-### EmotionClient
-Responsible for:
-- Creating JSON request
-- Attaching:
-  - ASR text
-  - Face features
-  - Base64 cropped face image
-- Sending post to /emotion_from_logs
-- Parsingh response
-- Writing CSV logs
-
-CSV Columns:
-- Timestamp
-- Session ID
-- Driving flag
-- ASR text
-- All face features
-- HTTP status
-- Emotion
-- Valence
-- Arousal
-- Confidence
-- Signals
-- Notes
-
-### WhisperXClient
-Loop:
-1. Records microphone chunk
-2. Converts to WAV
-3. Sends to /transcribe
-4. Updates:
-   - UI transcript
-   - EmotionClient
-   - EmotionWindowAggregator
-5. Appends transcripts.jsonl
-
-### LogTailerEmotionBridge
-Reads:
-- transcripts.jsonl
-- face_landmarks_468.jsonl
-  
-Pushes parsed data back into the aggregator
-
-This allows:
-- Offline replay
-- Dataset-driven evaluation
-- Decoupled pipelines
-
-### Logging System
-All logs stored in:
-```Application.persistentDataPath/Logs```
-
-Check Unity logs if unsure about the path. Logs print out paths.
-
-Structure:
-```
-Logs/
-  transcripts.jsonl
-  face_landmarks_468.jsonl
-  emotion_log.csv
-  images/
-      face_session_timestamp.jpg
-```
-
-## Backend (server.py)
-Built with:
-- FastAPI
-- WhisperX
-- Ollama (Qwen2.5-VL)
-
-### /transcribe
-Uses WhisperX to produce:
+## Repository structure
 
 ```
+.
+├── emotion-server/                 # Python backend + Unity emotion capture scripts
+│   ├── server.py                   # Main FastAPI server (port 8000)
+│   ├── mediapipe_service.py        # MediaPipe FaceLandmarker service (port 8010)
+│   ├── tests/                      # pytest suite
+│   └── Scripts/                    # Unity emotion capture pipeline
+│       ├── OfficialMediaPipeRunner.cs
+│       ├── OfficialMediaPipeClient.cs
+│       ├── EmotionWindowAggregator.cs
+│       ├── EmotionClient.cs
+│       ├── WhisperXClient.cs
+│       ├── FaceCropper.cs
+│       ├── FaceFeatureExtractor.cs
+│       ├── FaceLandmarksJsonlLogger.cs
+│       ├── LogTailerEmotionBridge.cs
+│       ├── EmotionHUD.cs
+│       ├── LogPaths.cs
+│       └── CsvLog.cs
+│
+├── driving-simulator/              # BO-loop integration scripts for the simulator
+│   └── Scripts/
+│       ├── StudyConditionManager.cs
+│       ├── EmotionBOBridge.cs
+│       ├── LoopForQT.cs
+│       └── ConditionHooks_UPDATE.cs
+│
+├── Tests/                          # Unity editor tests for FaceFeatureExtractor
+├── .github/workflows/ci.yml
+├── .gitignore
+├── requirements.txt
+└── README.md
+```
+
+## Conditions
+
+The system supports three feedback conditions (Section 3.2.1 of the dissertation), set via the **Condition ID** field on the simulator's start screen:
+
+| ID | Name | Behaviour |
+| --- | --- | --- |
+| 1 | LLM-only | Per-iteration questionnaire is replaced by a 10-second processing pop-up. The LLM's ratings drive the BO. |
+| 2 | Questionnaire-only | Standard BOforUnity behaviour. The LLM still runs but does not capture anything (idle state). |
+| 3 | Combination | Both signals are collected. The BO objective values are a 50/50 blend of the LLM and questionnaire ratings. |
+
+The **Group ID** must be set to `RuralUrbanHighway` to reproduce the study setup. Only the rural and urban environments are used; the third (Highway) entry is vestigial code inherited from an earlier study and is never instantiated.
+
+## Per-iteration data flow
+
+1. The Unity simulator signals `iteration_start` to the backend, which switches to a `collecting` state.
+2. During the 30-second iteration:
+   - The MediaPipe runner captures one webcam frame every ~3 seconds, sends it to `mediapipe_service.py`, and receives the 468 landmarks and 52 blendshapes.
+   - The WhisperX client records 3-second audio chunks at 16 kHz mono and posts them to `/transcribe`, receiving back per-chunk transcripts.
+   - Every 5 seconds, the aggregator pushes accumulated face features, blendshapes, transcript, and the most recent cropped face image to `/emotion_from_logs`. The server appends to a per-iteration buffer.
+3. At iteration end, the simulator signals `iteration_end`. The backend takes the most recent buffered payload, builds the multimodal prompt, and queries Gemma 4. The structured JSON response is parsed, validated, and exposed via `/latest_emotion`.
+4. The Unity client fetches the result, blends it with the questionnaire response according to the active condition, and writes the final objective values into the BO.
+
+## Output format
+
+```json
 {
-  "text": "...",
-  "segments": [...]
+  "safety": -1.5,
+  "naturalness": 0.5,
+  "progress": 1.0,
+  "emotion": "neutral",
+  "valence": 5.5,
+  "arousal": 3.0,
+  "confidence": 0.85,
+  "signals": ["calm facial expression", "steady speech"],
+  "notes": "Driver appears unconcerned"
 }
 ```
 
-### /emotions_from_logs
-Accepts:
+Field constraints (enforced server-side):
 
-```
-{
-  "session_id": "...",
-  "t_utc": "...",
-  "asr_text": "...",
-  "face_features": { ... },
-  "driving_session": true,
-  "face_jpeg_b64": "..."
-}
-```
+- `safety` / `naturalness` / `progress`: floats in $[-3, +3]$
+- `valence` / `arousal`: floats in $[1, 9]$
+- `confidence`: float in $[0, 1]$
+- `emotion`: one of `neutral, happy, angry, fear, disgust, surprised, sad`
 
-Then:
-1. Constructs multimodal prompt
-2. Sends to Ollama
-3. Forces JSON-only output
-4. Validates response
-5. Returns structured emotion object
+The full prompt template (system message, user template, allowed emotion categories, blendshape whitelist, generation parameters) is reproduced in Appendix F of the dissertation.
 
-### Ollama + Qwen2.5-VL
-Environment variables:
+## Prerequisites
 
-OLLAMA_CHAT_URL=```http://127.0.0.1:11434/api/chat```
+- **Unity 2022.3 LTS.** Both the simulator project and this emotion capture project must be opened separately in Unity Hub.
+- **Python 3.12.** Required for the FastAPI backend and MediaPipe service. Older versions (3.10 or 3.11) may be needed if WhisperX encounters compatibility issues.
+- **Ollama**, available at <https://ollama.com/download>.
+- **CUDA-capable GPU.** Required for acceptable LLM inference speeds and WhisperX transcription. Development was conducted on an NVIDIA RTX 4070 and an NVIDIA RTX 5080; testing was conducted on an NVIDIA RTX 5080.
+- **Operating system.** Developed and tested on Windows. The terminal commands below assume a Windows environment with PowerShell.
 
-OLLAMA_MODEL=```qwen2.5vl:latest```
+## Installation
 
-Model is used in true multimodal mode:
-- Text
-- Numeric features
-- Face Image
+### 1. Get the MediaPipe FaceLandmarker model
 
-## Emotion Output Format
-```
-{
-  "emotion": "happy",
-  "valence": 0.62,
-  "arousal": 0.71,
-  "confidence": 0.88,
-  "signals": [
-    "smile detected",
-    "positive speech tone"
-  ],
-  "notes": "Driver appears engaged"
-}
+`mediapipe_service.py` loads a `face_landmarker.task` file at startup. Download it from Google's MediaPipe model garden:
+
+```powershell
+Invoke-WebRequest -Uri "https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task" `
+  -OutFile "face_landmarker.task"
 ```
 
-More simplified version is printed out on Unity logs (emotion and confidence)
+The path can be overridden via the `FACE_LANDMARKER_TASK` environment variable.
 
-## Scene Architecture
-The main demo scene (main) is structured into modular systems:
-- Main Canvas
-- Solution
-- WhisperXClient
-- FaceLog
-- EmotionSystem
+### 2. Set up the Python environment
 
-Default Unity objects (Main Camera, Direction Light, EventSystem) are not part of the emotion pipeline.
+Navigate to the project directory:
 
-### Solution (FaceLandmarker Runner)
-Component: FaceLandmarkerRunner
-
-This object runs MediaPipe Face Landmarker and acts as the primary visual + capture pipeline.
-
-#### Responsibilities:
-- Runs MediaPipe Face Landmarker (Async mode)
-- Draws face landmark annotations
-- Logs 468 landmarks to JSONL
-- Extracts face features
-- Feeds EmotionWindowAggregator
-- Crops face image and sends it to EmotionClient
-
-#### Key Settings:
-- Capture Hz: 0.333 (i.e. every 3 seconds)
-- Crop Padding: 0.15
-- JPEG Quality: 80
-- Flip Output Vertically: enabled
-- Face Crop: enabled
-
-This object is the vision entry point of the system
-
-### WhisperXClient
-Component: WhisperXClient
-
-Handes real-time microphone recording and speech transcription
-
-#### Responsibilities:
-- Records 3-second audio chunks
-- Sends audio to:
-  http://127.0.0.1:8000/transcribe
-- Updates on-screen transcript
-- Pushes ASR text into EmotionClient
-- Triggers EmotionWindowAggregator on new speech
-- Logs transcripts to transcripts.jsonl
-
-#### Key Settings:
-- Sample Rate: 16000
-- Record Seconds: 3
-- Transcript Logging: enabled
-
-This object is the audio entry point of the system.
-
-### FaceLog
-Component: FaceLandmarksJsonlLogger
-
-Logs raw 468 MediaPipe landmarks.
-
-#### Output
-```Logs/face_landmarks_468.jsonl```
-
-Each frame includes:
-- UTC timestamp
-- Unity time
-- Face index
-- Full landmark array
-
-This is used for:
-- Dataset generation
-- Offline replay
-- Debugging
-- Feature validation
-
-Raw landmarks are not sent to the server. Instead, face features are (as described previously).
-
-### EmotionSystem
-This object contains:
-- LogTailerEmotionBridge
-- EmotionClient
-- EmotionWindowAggregator
-
-It is the core multimodal fusion system.
-
-#### LogTailerEmotionBridge
-Polls:
-- transcripts.jsonl
-- face_landmarks_468.jsonl
-
-Feeds parsed data into the aggregator.
-
-Poll interval: 0.2 seconds
-
-Allows:
-- Decoupled logging
-- Replay capability
-- File-driven integration
-
-#### EmotionClient
-Sends fused data to backend:
-
-```http://127.0.0.1:8000/emotion_from_logs```
-
-Sends:
-- ASR text
-- Aggregated face features
-- Cropped face image (base64 JPEG)
-- Driving session flag
-
-Logs final result to:
-
-```Logs/emotion_log.csv```
-
-Key Settings:
-- Server Vision Side: 256
-- JPEG Quality: 70
-- Save Face Images: enabled
-- CSV Logging: enabled
-
-#### EmotionWindowAggregator
-Maintains sliding window of face features.
-
-Configuration:
-- Window: 6 seconds
-- Keep: 8 seconds
-- Blink threshold: 0.18
-- Send on Timer: enabled
-- Timer interval: 3 seconds
-- Send on ASR Chunk: enabled
-
-Prevents overlapping server requests and smooths predictions
-
-## How the Scene Works Together
-<img width="4100" height="1044" alt="image" src="https://github.com/user-attachments/assets/e68ed985-806f-4740-9ef4-b757d7b33f98" />
-
-## How to Run:
-Please run on a device that has a GPU. If not it would be too slow, and might return an error instead.
-
-### 1. Backend
-Install dependencies (create a venv with Python 3.10):
-
-Terminal 1 (MediaPipe Server):
+```powershell
+cd <path-to-this-repository>
 ```
-py -3.10 -m venv venv
+
+Create and activate a virtual environment:
+
+```powershell
+py -3.12 -m venv venv
 venv\Scripts\activate
-pip install mediapipe fastapi uvicorn opencv-python numpy
+```
+
+Install dependencies for the MediaPipe service:
+
+```powershell
+pip install mediapipe fastapi uvicorn opencv-python numpy --upgrade
+```
+
+Install dependencies for the main server (in the same virtual environment):
+
+```powershell
+pip install fastapi uvicorn whisperx torch httpx numpy ffmpeg --upgrade
+```
+
+Alternatively, install everything at once via `requirements.txt`.
+
+### 3. Set up Ollama and Gemma 4
+
+Install Ollama from <https://ollama.com/download>, then pull the model:
+
+```powershell
+ollama pull gemma4:latest
+```
+
+The `gemma4:latest` tag at the time of writing corresponds to the `e4b` variant.
+
+## Running the system
+
+Three terminal sessions and two Unity instances are required. Start the services in the following order.
+
+### Terminal 1: MediaPipe Service
+
+```powershell
+cd <path-to-this-repository>
+venv\Scripts\activate
 uvicorn mediapipe_service:app --host 127.0.0.1 --port 8010
 ```
 
-Terminal 2 (FastAPI server - Qwen, WhisperX):
-```
+### Terminal 2: Main Server (LLM and WhisperX)
+
+```powershell
+cd <path-to-this-repository>
 venv\Scripts\activate
-pip install fastapi uvicorn whisperx torch httpx numpy ffmpeg
 uvicorn server:app --host 127.0.0.1 --port 8000
 ```
 
-Terminal 3:
-```
-ollama pull qwen3.5:latest
-ollama run qwen3.5
-```
-- If whisperx install doesn't work, it is because of the Python version. Try older Python versions like 3.10
-- Install Ollama (https://ollama.com/download)
+### Terminal 3: Ollama
 
-### 2. Unity
-Requirements:
-- Unity 2022+
-  This project was developed using Unity 2022.3.62f3
-- MediaPipe Unity plugin (homuler) -> MediaPipe official
-- TextMeshPro
-- Newtonsoft JSON
+```powershell
+ollama serve
+```
 
-Steps:
-1. Add the Unity package (emotion_response.unitypackage) to the project - to be updated. to run with driving simulator, run two scenes separately
-   - Open Unity project
-   - Go to Assets -> Import Package -> Custom Package
-   - Select the .unitypackage file
-   - Click Import All
-2. Configure EmotionClient.serverUrl (can keep as given)
-3. Configure WhisperXClient.serverUrl (can keep as given)
-4. Press Play
+If the error `bind: Only one usage of each socket address` appears, Ollama is already running in the background and no action is needed.
+
+### Unity: Emotion Capture System
+
+Open the emotion capture Unity project in Unity Hub and start the emotion capture scene. **This must be started before the driving simulator.**
+
+### Unity: Driving Simulator
+
+Open the driving simulator project (the BOforUnity-based simulator) in Unity Hub, then follow this procedure:
+
+1. Run the `StartScene`.
+2. Input the **User ID**.
+3. Input the **Condition ID** (1 = LLM-only, 2 = Questionnaire-only, 3 = Combination).
+4. Input the **Group ID**: set this to `RuralUrbanHighway` for the study setup.
+5. Click **Update IDs** and wait for the debug log `Python process started successfully`.
+6. Click **Load Map** after the debug log `Initialization DONE` appears. A further log displays the BO configuration.
+7. Wait approximately 20 seconds for the scene to load. The scene must be included in Unity's build settings and its name must match the corresponding `SceneName`-tagged GameObject in the `StartScene`.
+8. Click **Initialize** to begin the driving session with the MOBO active.
+
+To monitor emotion recognition activity within the driving simulator, type `Emotion` in the Unity console search bar to filter for `[EmotionBridge]` log entries.
+
+## Configuration (environment variables)
+
+All service URLs and ports are read from environment variables with localhost defaults.
+
+| Variable | Default | Used by |
+| --- | --- | --- |
+| `OLLAMA_CHAT_URL` | `http://127.0.0.1:11434/api/chat` | server.py |
+| `OLLAMA_MODEL` | `gemma4:latest` | server.py |
+| `EMOTION_CORS_ORIGINS` | `http://localhost,http://127.0.0.1` | server.py CORS allow-list (comma-separated) |
+| `MEDIAPIPE_CORS_ORIGINS` | `http://localhost,http://127.0.0.1` | mediapipe_service.py CORS allow-list |
+| `FACE_LANDMARKER_TASK` | `face_landmarker.task` | mediapipe_service.py |
+| `MEDIAPIPE_SERVICE_HOST` | `127.0.0.1` | mediapipe_service.py bind host |
+| `MEDIAPIPE_SERVICE_PORT` | `8010` | mediapipe_service.py bind port |
+| `EMOTION_SERVER_BASE_URL` | `http://127.0.0.1:8000` | Unity (`EmotionWindowAggregator`, `WhisperXClient`, `EmotionBOBridge`) |
+| `MEDIAPIPE_BASE_URL` | `http://127.0.0.1:8010` | Unity (`OfficialMediaPipeClient`) |
+
+## Running the tests
+
+```powershell
+pip install pytest pytest-asyncio
+cd emotion-server
+python -m pytest tests\ -v
+```
+
+The same suite runs on every push and PR via `.github/workflows/ci.yml`.
+
+## Log file locations
+
+Unity applications on Windows store persistent data under:
+
+```
+%USERPROFILE%\AppData\LocalLow\DefaultCompany\<ApplicationName>\
+```
+
+The following log directories are relative to this base path (Section D.5 of the dissertation):
+
+- **Questionnaire responses** — per-iteration CSV files generated by the driving simulator's questionnaire system:
+  `ContextBOStudyResults\Assets\QuestionnaireToolkit\Results`
+- **Blended and raw emotion responses** — combined log entries recording both LLM and questionnaire values as used by the MOBO:
+  `ContextBOStudyResults\Logs`
+- **Emotion system data** — transcripts, captured face images, facial landmarks, and raw LLM responses logged by the emotion recognition system:
+  `<EmotionSystemProjectName>\Logs`
+- **Driving parameters** — per-iteration driving simulator parameters (speed, offset, braking, distance), stored relative to the driving simulator project root:
+  `Assets\Logs`
+
+These directories contain webcam crops, transcripts, and other personally-identifying data and are excluded by `.gitignore`.
+
+## Notes
+
+- Audio and facial data are captured every 3 seconds during each 30-second segment, then sent to the server in bulk at the end of the iteration. Only one LLM assessment is produced per iteration.
+- Speech transcription operates on rolling 3-second audio chunks at 16 kHz mono.
+- The condition router (`StudyConditionManager.cs`) maps Condition IDs 1/2/3 to `llm_only`, `value_only`, and `combination` respectively, and is the single source of truth for which feedback channel is active.
+
+## Citation
+
+If you use this code or build on this work, please cite the dissertation:
+
+> Yun, C. (2026). *From Faces to Feedback: LLM-Based Implicit Evaluation for Driving Style Optimisation in Automated Vehicles.* BSc dissertation, University College London.
