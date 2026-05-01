@@ -54,6 +54,9 @@ public class EmotionWindowAggregator : MonoBehaviour
     {
         if (emotionClient == null) emotionClient = GetComponent<EmotionClient>();
         if (emotionClient == null) emotionClient = FindObjectOfType<EmotionClient>();
+    
+        var envUrl = Environment.GetEnvironmentVariable("EMOTION_SERVER_BASE_URL");
+        if (!string.IsNullOrEmpty(envUrl)) emotionServerUrl = envUrl.TrimEnd('/');
     }
 
     void OnEnable()
