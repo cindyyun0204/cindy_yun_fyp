@@ -235,7 +235,7 @@ def _transcribe_wav_path(tmp_path: str) -> dict:
 
 
 def dummy_probs() -> dict:
-    probs = {l: 0.0 for l in LABELS}
+    probs = {label: 0.0 for label in LABELS}
     probs["neutral"] = 1.0
     return probs
 
@@ -255,8 +255,8 @@ def predict_face_emotion(face_features: np.ndarray) -> dict:
 
 
 def fuse_probs(audio_probs: dict, face_probs: Optional[dict], w_audio: float, w_face: float) -> dict:
-    a = np.array([audio_probs[l] for l in LABELS], dtype=np.float32)
-    f = np.array([face_probs[l] for l in LABELS], dtype=np.float32) if face_probs else np.zeros_like(a)
+    a = np.array([audio_probs[label] for label in LABELS], dtype=np.float32)
+    f = np.array([face_probs[label] for label in LABELS], dtype=np.float32) if face_probs else np.zeros_like(a)
 
     fused = w_audio * a + w_face * f
     s = float(fused.sum())
@@ -400,11 +400,16 @@ async def call_ollama_emotion_json(payload: EmotionLogRequest) -> Dict[str, Any]
     has_asr = bool(payload.asr_text and payload.asr_text.strip())
 
     modalities = []
-    if has_asr:           modalities.append("speech transcription")
-    if has_face:          modalities.append("geometric face features")
-    if has_blendshapes:   modalities.append("face blendshapes")
-    if has_image:         modalities.append("face image")
-    if not modalities:    modalities.append("limited context")
+    if has_asr:
+        modalities.append("speech transcription")
+    if has_face:
+        modalities.append("geometric face features")
+    if has_blendshapes:
+        modalities.append("face blendshapes")
+    if has_image:
+        modalities.append("face image")
+    if not modalities:
+        modalities.append("limited context")
 
     modality_str = " + ".join(modalities)
 
