@@ -27,10 +27,11 @@ jobs:
         # The full requirements.txt pulls in torch/whisperx/mediapipe which
         # are heavy and CUDA-oriented. CI only needs the bits that the unit
         # tests touch (state store + Pydantic schemas). conftest.py stubs
-        # torch/whisperx so the import of server.py succeeds.
+        # torch/whisperx so the import of server.py succeeds. numpy is used
+        # directly in server.py and is small/fast, so install it normally.
         run: |
           python -m pip install --upgrade pip
-          pip install fastapi httpx python-multipart pytest pytest-asyncio "pydantic>=2.6,<3.0"
+          pip install fastapi httpx python-multipart pytest pytest-asyncio numpy "pydantic>=2.6,<3.0"
 
       - name: Run tests
         working-directory: emotion-server
