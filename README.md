@@ -7,7 +7,7 @@ The system investigates whether a multimodal Large Language Model can replace or
 ## Quick start for the Unity side
 
 The Unity emotion capture project is provided as a pre-packaged
-`EmotionCapture_FYP.unitypackage` at the repository root. To set it up:
+`emotion_system.unitypackage` at the repository root. To set it up:
 
 1. Create a new Unity 2022.3 LTS project (3D template).
 2. `Assets` → `Import Package` → `Custom Package...` and select
