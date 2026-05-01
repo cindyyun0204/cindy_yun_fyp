@@ -32,7 +32,11 @@ public class WhisperXClient : MonoBehaviour
 
     private void Start()
     {
+        var envUrl = Environment.GetEnvironmentVariable("EMOTION_SERVER_BASE_URL");
+        if (!string.IsNullOrEmpty(envUrl)) serverUrl = envUrl.TrimEnd('/') + "/transcribe";
+    
         if (transcriptText != null) transcriptText.text = "";
+
 
         if (Microphone.devices.Length == 0)
         {
