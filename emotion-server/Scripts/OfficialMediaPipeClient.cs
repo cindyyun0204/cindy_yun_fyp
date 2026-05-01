@@ -46,6 +46,13 @@ public class OfficialMediaPipeClient : MonoBehaviour
     public bool logRequests = false;
     public bool logResponses = false;
 
+    void Awake()
+    {
+        var envUrl = Environment.GetEnvironmentVariable("MEDIAPIPE_BASE_URL");
+        if (!string.IsNullOrEmpty(envUrl))
+            serviceUrl = envUrl.TrimEnd('/') + "/mediapipe_face";
+    }
+
     public IEnumerator DetectFromImageBytes(byte[] imageBytes, Action<OfficialMediaPipeResponse> onDone)
     {
         if (imageBytes == null || imageBytes.Length == 0)
