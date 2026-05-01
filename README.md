@@ -262,3 +262,4 @@ These directories contain webcam crops, transcripts, and other personally-identi
 - Audio and facial data are captured every 3 seconds during each 30-second segment, then sent to the server in bulk at the end of the iteration. Only one LLM assessment is produced per iteration.
 - Speech transcription operates on rolling 3-second audio chunks at 16 kHz mono.
 - The condition router (`StudyConditionManager.cs`) maps Condition IDs 1/2/3 to `llm_only`, `value_only`, and `combination` respectively, and is the single source of truth for which feedback channel is active.
+- A full video of how the transitions in the driving simulator work can be accessed here: https://drive.google.com/file/d/105rd79qjxWcerN14wLJLgoRLkhTK6baS/view?usp=sharing
