@@ -69,6 +69,9 @@ public class EmotionBOBridge : MonoBehaviour
             Debug.Log($"[EmotionBridge] Raw CSV:     {rawCsvPath}");
             Debug.Log($"[EmotionBridge] Blended CSV: {blendCsvPath}");
         }
+
+        var envUrl = Environment.GetEnvironmentVariable("EMOTION_SERVER_BASE_URL");
+        if (!string.IsNullOrEmpty(envUrl)) emotionServer = envUrl.TrimEnd('/');
     }
 
     private void InitUnifiedCsv(string userId, string conditionId)
