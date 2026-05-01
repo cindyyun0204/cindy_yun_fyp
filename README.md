@@ -95,6 +95,12 @@ Field constraints (enforced server-side):
 - `emotion`: one of `neutral, happy, angry, fear, disgust, surprised, sad`
 
 The full prompt template (system message, user template, allowed emotion categories, blendshape whitelist, generation parameters) is reproduced in Appendix F of the dissertation.
+## Offline bundle
+
+A complete offline bundle is also provided as `emotion_system_offline_bundle.zip` at the repository root. This contains the Unity emotion capture project, the Python backend, and the MediaPipe `face_landmarker.task` model file pre-downloaded: everything needed to run the system without manually fetching the model or cloning each component separately.
+However, this is just for the 'emotion system' part of the project. The driving simulator is an external codebase and it is not included, hence I uploaded the modified scripts for that project on this GitHub.
+
+To use it: extract the zip, open the Unity project folder in Unity 2022.3 LTS, and follow [Installation](#installation) from step 2 onwards (the model download in step 1 can be skipped).
 
 ## Prerequisites
 
